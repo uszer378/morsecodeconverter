@@ -1,0 +1,108 @@
+#!/bin/bash
+
+# Function to convert a single character to Morse code
+char_to_morse() {
+    local char="$1"
+    case "$char" in
+        a|A) echo ".-" ;;
+        b|B) echo "-..." ;;
+        c|C) echo "-.-." ;;
+        d|D) echo "-.." ;;
+        e|E) echo "." ;;
+        f|F) echo "..-." ;;
+        g|G) echo "--." ;;
+        h|H) echo "...." ;;
+        i|I) echo ".." ;;
+        j|J) echo ".---" ;;
+        k|K) echo "-.-" ;;
+        l|L) echo ".-.." ;;
+        m|M) echo "--" ;;
+        n|N) echo "-." ;;
+        o|O) echo "---" ;;
+        p|P) echo ".--." ;;
+        q|Q) echo "--.-" ;;
+        r|R) echo ".-." ;;
+        s|S) echo "..." ;;
+        t|T) echo "-" ;;
+        u|U) echo "..-" ;;
+        v|V) echo "...-" ;;
+        w|W) echo ".--" ;;
+        x|X) echo "-..-" ;;
+        y|Y) echo "-.--" ;;
+        z|Z) echo "--.." ;;
+        0) echo "-----" ;;
+        1) echo ".----" ;;
+        2) echo "..---" ;;
+        3) echo "...--" ;;
+        4) echo "....-" ;;
+        5) echo "....." ;;
+        6) echo "-...." ;;
+        7) echo "--..." ;;
+        8) echo "---.." ;;
+        9) echo "----." ;;
+        .) echo ".-.-.-" ;;
+        ,) echo "--..--" ;;
+        ?) echo "..--.." ;;
+        /) echo "-..-." ;;
+        -) echo "-....-" ;;
+        =) echo "-...-" ;;
+        ' ') echo "/" ;; # Space between words is represented by a single slash
+        *) echo "" ;; # Ignore unsupported characters
+    esac
+}
+
+# Main script logic
+input_text=""
+file_path=""
+
+# Check for -f argument first
+if [ "$1" == "-f" ]; then
+    if [ -n "$2" ]; then
+        file_path="$2"
+        if [ -f "$file_path" ]; then
+            input_text=$(<"$file_path") # Read file content into input_text
+        else
+            echo "Error: File not found or not a regular file: '$file_path'" >&2
+            echo "Usage: $0 -f <file_path>" >&2
+            exit 1
+        fi
+    else
+        echo "Error: -f requires a file path." >&2
+        echo "Usage: $0 -f <file_path>" >&2
+        exit 1
+    fi
+elif [ -n "$1" ]; then
+    input_text="$*" # Get all arguments as a single string
+else
+    # If no arguments and no -f, read from standard input
+    while IFS= read -r line; do
+        input_text+="$line" # Append each line read from stdin
+    done
+fi
+
+# If input_text is still empty after checking arguments, file, and stdin, show usage
+if [ -z "$input_text" ]; then
+    echo "Usage: $0 <text_to_convert>"
+    echo "       Or: $0 -f <file_path>"
+    echo "       Or: echo \"<text_to_convert>\" | $0"
+    echo "       Or: $0 < input.txt"
+    echo "Example: $0 'Hello World'"
+    echo "Example: $0 -f my_file.txt"
+    echo "Example: echo 'Hello World' | $0"
+    echo "Example: $0 < my_file.txt"
+    exit 1
+fi
+
+morse_output=""
+
+# Loop through each character of the input text
+for (( i=0; i<${#input_text}; i++ )); do
+    char="${input_text:$i:1}"
+    morse_char=$(char_to_morse "$char")
+
+    if [ -n "$morse_char" ]; then
+        morse_output+="$morse_char " # Add a space after each Morse character
+    fi
+done
+
+echo "$morse_output"
